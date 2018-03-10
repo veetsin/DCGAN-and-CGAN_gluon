@@ -12,7 +12,7 @@ from mxnet import autograd
 import numpy as np
 
 epochs = 2
-batch_size = 4
+batch_size = 128
 latent_z_size = 100
 
 def try_gpu():
@@ -50,7 +50,7 @@ def visualize(img_arr):
  
 #show 9 images
 fig = plt.figure(figsize=(9,9))
-for i in range(9):
+for i in range(21):
     plt.subplot(3,3,i+1)
     visualize(img_list[i][0])
 plt.show()
@@ -139,12 +139,13 @@ for epoch in range(epochs):
         trainerG.step(batch_size)
     fake = netG(latent_z)
     fig = plt.figure(figsize=(16,16))
-    for i in range(4):
-        plt.subplot(2,2,i+1)
-        visualize(fake[i])
-    plt.show()
-    end_time = time.time() 
-    print('time:%f'%(end_time-start_time))
+    if (epoch%10) ==0
+    	for i in range(4):
+        	plt.subplot(2,2,i+1)
+        	visualize(fake[i])
+    	plt.show()
+    	end_time = time.time() 
+    print('time of 10 epochs:%f'%(end_time-start_time))
         
 
         

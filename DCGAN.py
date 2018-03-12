@@ -11,8 +11,12 @@ from mxnet.gluon import nn , utils
 from mxnet import autograd
 import numpy as np
 
+
 epochs = 31
 batch_size = 64
+
+epochs = 2
+batch_size = 4
 latent_z_size = 100
 
 def try_gpu():
@@ -38,8 +42,9 @@ for _,_,files in os.walk(data_path):
         img_arr = mx.image.imread(img_dir)
         #from HWC transpose to format of CHW 
         img_arr = nd.transpose(img_arr,(2,0,1))
-        #normalize to [-1,1]
+        #normalize pixel to [-1,1] to fit the scale of input 
         img_arr = (img_arr.astype(np.float32)/127.5-1)
+        #add one dimension (from 3 to 4)
         img_arr = nd.array(img_arr.reshape((1,)+img_arr.shape))
         img_list.append(img_arr)
 train_data = mx.io.NDArrayIter(data = nd.concatenate(img_list),batch_size=batch_size)
@@ -114,10 +119,20 @@ def eveluate(pred , label):
     pred = pred.flatten()
     label = label.flatten()
     return ((pred>.5) == label).mean()
-metric = mx.metric.CustomMetric(eveluate)
+metric = mx.metric.CustomMetric(eveluate)#custom metric
 
 logging.basicConfig(level=logging.DEBUG)
-
+his_acc = []
+his_errD = []
+his_errG = []
+#funtion to save the netG
+path = 'his_params'
+if not os.path.exists(path):
+    os.makedirs(path)
+def save_params(net,epoch,path):
+    file_path = os.path.join(path,str(epoch))
+    net.save_params(file_path)
+    
 for epoch in range(epochs):
     start_time = time.time()
     train_data.reset()
@@ -151,6 +166,10 @@ for epoch in range(epochs):
       
     end_time = time.time() 
     _,acc = metric.get()
+    his_acc.append(acc)
+    his_errD.append(nd.mean(errD).asscalar())
+    his_errG.append(nd.mean(errG).asscalar())
+    save_params(netG,epoch,path)
     logging.info('epoch: %i ; discriminator loss:%f ; generator loss:%f ; training acc:%f ; time:%f'
                  %(epoch , nd.mean(errD).asscalar(),nd.mean(errG).asscalar(),acc,end_time-start_time))
     metric.reset()
@@ -161,8 +180,18 @@ for epoch in range(epochs):
             fake = netG(latent_z)
             plt.subplot(2,2,i+1)
             visualize(fake[i])
-        plt.show()
-    
+        plt.show()    
+
+#plot the data
+x_axis = np.linspace(0,epochs,len(his_acc))
+plt.figure(figsize=(12,12))
+plt.plot(x_axis,his_acc,label='accuracy')
+plt.plot(x_axis,his_errD,label='error of Discriminator')
+plt.plot(x_axis,his_errG,label='error of Generator')
+plt.xlabel('epoch')
+plt.legend()
+plt.show()
+
 
         
     

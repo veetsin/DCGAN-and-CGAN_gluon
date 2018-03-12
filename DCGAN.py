@@ -11,7 +11,7 @@ from mxnet.gluon import nn , utils
 from mxnet import autograd
 import numpy as np
 
-epochs = 201
+epochs = 31
 batch_size = 64
 latent_z_size = 100
 
@@ -155,7 +155,7 @@ for epoch in range(epochs):
                  %(epoch , nd.mean(errD).asscalar(),nd.mean(errG).asscalar(),acc,end_time-start_time))
     metric.reset()
     if (0 < epoch < 10) or ((epoch % 10) == 0):
-        fig = plt.figure(figsize=(12,12))
+        fig = plt.figure(figsize=(9,9))
         for i in range(4):
             latent_z = mx.nd.random_normal(0,1,shape=(4,latent_z_size,1,1),ctx=ctx)
             fake = netG(latent_z)

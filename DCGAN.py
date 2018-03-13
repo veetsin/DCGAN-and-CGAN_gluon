@@ -12,11 +12,9 @@ from mxnet import autograd
 import numpy as np
 
 
-epochs = 31
-batch_size = 64
 
-epochs = 2
-batch_size = 4
+epochs = 261
+batch_size = 64
 latent_z_size = 100
 
 def try_gpu():
@@ -115,16 +113,19 @@ import logging
 real_label = nd.ones((batch_size,),ctx=ctx)
 fake_label = nd.zeros((batch_size,),ctx=ctx)
 
+
+#custom metric
 def eveluate(pred , label):
     pred = pred.flatten()
     label = label.flatten()
     return ((pred>.5) == label).mean()
-metric = mx.metric.CustomMetric(eveluate)#custom metric
-
+metric = mx.metric.CustomMetric(eveluate)
 logging.basicConfig(level=logging.DEBUG)
 his_acc = []
 his_errD = []
 his_errG = []
+
+
 #funtion to save the netG
 path = 'his_params'
 if not os.path.exists(path):

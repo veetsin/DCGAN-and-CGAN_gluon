@@ -165,7 +165,7 @@ for epoch in range(epochs):
                 fake = netG(latent_z)
                 output_fake_D = netD(fake).reshape((-1,1))
                 errD_fake = output_fake_D #errD_fake_D changed
-                errD = errD_real + errD_fake
+                errD = errD_fake - errD_real
                 errD.backward()
                 metric.update([output_fake_D],[fake_label])
             
@@ -176,7 +176,7 @@ for epoch in range(epochs):
         with autograd.record():
             fake = netG(latent_z)
             output_fake_G = netD(fake).reshape((-1,1))
-            errG = output_fake_G #errG changed
+            errG = -output_fake_G #errG changed
             errG.backward()
         
         trainerG.step(batch_size)
